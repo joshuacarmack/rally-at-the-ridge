@@ -15,7 +15,6 @@
         </div>
         <div class="mt-3 d-flex gap-2">
           <button class="btn btn-primary">Submit Registration</button>
-          <span class="text-muted">Submitting once is enough—don’t refresh.</span>
         </div>
       </form>
     @endif
