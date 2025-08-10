@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Car;
 
@@ -10,14 +11,21 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin user (change in prod)
-        User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
-        ]);
+        // Create or update the admin user (won't duplicate)
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin User',
+                'password' => Hash::make('password'), // change in prod
+                'email_verified_at' => now(),
+            ]
+        );
 
-        // 10 demo TEST cars (IDs 1..10) for training
-        Car::factory()->count(10)->state(['is_test' => true])->create();
+        // Ensure there are exactly 10 TEST cars (IDs may vary if you’ve seeded before)
+        $have = Car::where('is_test', true)->count();
+        $need = max(0, 10 - $have);
+        if ($need > 0) {
+            Car::factory()->count($need)->state(['is_test' => true])->create();
+        }
     }
 }
