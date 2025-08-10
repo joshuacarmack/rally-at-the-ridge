@@ -10,7 +10,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('car_id')->constrained('cars')->cascadeOnDelete();
             $table->foreignId('added_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamps(); // created_at = vote time
+            $table->timestamps();
             $table->index(['car_id','created_at']);
         });
     }
