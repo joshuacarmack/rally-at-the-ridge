@@ -8,6 +8,10 @@ use App\Http\Controllers\Admin\CheckinController;
 use App\Http\Controllers\Admin\DrawingController;
 use App\Http\Controllers\Admin\VotingController;
 
+Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))
+    ->middleware('auth')
+    ->name('dashboard');
+
 // Public
 Route::get('/', [RegistrationPageController::class, 'show'])->name('reg.form');
 Route::post('/register', [RegistrationController::class, 'store'])->name('reg.store');

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 @section('content')
 <div class="container py-5">
   <h2>Thanks! Your registration was received.</h2>
