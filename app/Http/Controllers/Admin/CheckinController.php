@@ -30,8 +30,6 @@ class CheckinController extends Controller
                     });
                 }
             })
-            ->orderBy('last_name')
-            ->orderBy('first_name')
             ->orderBy('id')
             ->paginate(25)
             ->withQueryString();
