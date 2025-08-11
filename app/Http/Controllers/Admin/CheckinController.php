@@ -8,37 +8,48 @@ use Illuminate\Http\Request;
 
 class CheckinController extends Controller
 {
-    public function search(Request $r)
+    // Table search: empty query = list all (paginated)
+    public function index(Request $r)
     {
         $q = trim((string)$r->query('q',''));
-        $cars = collect();
 
-        if ($q !== '') {
-            $cars = Car::query()
-                ->when(is_numeric($q), fn($qq) => $qq->where('id', (int)$q)) // ticket == id
-                ->when(!is_numeric($q), fn($qq) =>
-                    $qq->whereFullText(['first_name','last_name'],$q)
-                       ->orWhere('last_name','like',"%$q%")
-                       ->orWhere('first_name','like',"%$q%"))
-                ->orderBy('last_name')->orderBy('first_name')
-                ->limit(50)->get();
-        }
+        $cars = Car::query()
+            ->when($q !== '', function ($qq) use ($q) {
+                if (is_numeric($q)) {
+                    $qq->where('id', (int)$q);
+                } else {
+                    $qq->where(function ($w) use ($q) {
+                        $w->whereFullText(['first_name','last_name'], $q)
+                          ->orWhere('first_name','like',"%{$q}%")
+                          ->orWhere('last_name','like',"%{$q}%");
+                    });
+                }
+            })
+            ->orderBy('last_name')->orderBy('first_name')->orderBy('id')
+            ->paginate(25)
+            ->withQueryString();
 
-        return view('admin.search', compact('q','cars'));
+        return view('admin.checkin_index', compact('q','cars'));
     }
 
+    // Detail page
+    public function show(Car $car)
+    {
+        return view('admin.checkin_show', compact('car'));
+    }
+
+    // Actions
     public function checkin(Request $r, Car $car)
     {
-        if ($car->checked_in) return back()->with('ok','Already checked in');
-
-        $validated = $r->validate(['comments' => 'nullable|max:2000']);
-        $car->update([
-            'checked_in'    => true,
-            'checked_in_at' => now(),
-            'checked_in_by' => optional($r->user())->id,
-            'comments'      => $validated['comments'] ?? $car->comments,
-        ]);
-
+        if (!$car->checked_in) {
+            $validated = $r->validate(['comments' => 'nullable|max:2000']);
+            $car->update([
+                'checked_in'    => true,
+                'checked_in_at' => now(),
+                'checked_in_by' => optional($r->user())->id,
+                'comments'      => $validated['comments'] ?? $car->comments,
+            ]);
+        }
         return back()->with('ok','Checked in');
     }
 

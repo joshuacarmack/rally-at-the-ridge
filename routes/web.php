@@ -30,6 +30,8 @@ Route::middleware(['auth'])->prefix('/admin')->name('admin.')->group(function ()
     Route::get('/voting', [VotingController::class, 'index'])->name('voting');
     Route::post('/voting/submit', [VotingController::class, 'submit'])->name('voting.submit');
     Route::get('/voting/leaderboard', [VotingController::class, 'leaderboard'])->name('voting.leaderboard');
+    Route::get('/checkin', [CheckinController::class, 'index'])->name('checkin.index'); // table view
+    Route::get('/cars/{car}', [CheckinController::class, 'show'])->name('cars.show');   // detail view
 });
 
 require __DIR__.'/auth.php'; // Breeze routes
