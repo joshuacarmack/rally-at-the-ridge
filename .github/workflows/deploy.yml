@@ -1,0 +1,60 @@
+name: Deploy Laravel to cPanel via FTP
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, xml, ctype, json, tokenizer, openssl, pdo_mysql, bcmath
+          coverage: none
+
+      - name: Install prod dependencies
+        run: |
+          composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+      # OPTIONAL: create a production .env from secrets (don’t commit one!)
+      # Add an ENV_FILE secret with your entire .env contents or separate secrets per key
+      - name: Write .env
+        if: ${{ secrets.ENV_FILE != '' }}
+        run: |
+          printf "%s" "${{ secrets.ENV_FILE }}" > .env
+
+      # OPTIONAL: warm caches (only if your .env is present above)
+      - name: Cache config/routes/views (optional)
+        if: ${{ secrets.ENV_FILE != '' }}
+        run: |
+          php artisan key:generate --force || true
+          php artisan config:cache || true
+          php artisan route:cache || true
+          php artisan view:cache || true
+
+      - name: Deploy over FTP(S)
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftps
+          server-dir: public_html/ # change to your docroot (the dir that contains /public)
+          exclude: |
+            **/.git*
+            **/.github/**
+            node_modules/**
+            tests/**
+            storage/logs/**
+            storage/framework/cache/**
+            storage/framework/sessions/**
+            storage/framework/testing/**
+            .env.example
+            README.md
