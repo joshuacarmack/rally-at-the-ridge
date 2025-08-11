@@ -27,11 +27,6 @@
         </div>
       </div>
 
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href="{{ route('admin.search') }}" class="inline-flex items-center rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">Check‑In</a>
-        <a href="{{ route('admin.voting') }}" class="inline-flex items-center rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50">Voting</a>
-        <a href="{{ route('admin.drawings') }}" class="inline-flex items-center rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50">Drawings</a>
-      </div>
     </div>
   </div>
 </x-app-layout>
