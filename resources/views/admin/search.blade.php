@@ -1,66 +1,70 @@
 <x-app-layout>
   <x-slot name="header">
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-      <!-- Page title here, e.g. "Check‑In" -->
-      Search
-    </h2>
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">Check‑In</h2>
   </x-slot>
 
-<div class="container py-4">
-  <h1>Check‑In</h1>
-  @if(session('ok')) <div class="alert alert-success">{{ session('ok') }}</div> @endif
-  @if(session('err')) <div class="alert alert-danger">{{ session('err') }}</div> @endif
+  <div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      @if(session('ok')) <div class="mb-4 rounded-md bg-green-50 text-green-700 px-4 py-3">{{ session('ok') }}</div> @endif
+      @if(session('err')) <div class="mb-4 rounded-md bg-red-50 text-red-700 px-4 py-3">{{ session('err') }}</div> @endif
 
-  <form method="GET" class="mb-3">
-    <div class="input-group">
-      <input name="q" class="form-control" value="{{ $q }}" placeholder="Search by ticket (ID) or name">
-      <button class="btn btn-primary">Search</button>
-    </div>
-  </form>
+      <form method="GET" class="flex gap-2">
+        <input name="q" value="{{ $q }}" placeholder="Search by ticket (ID) or name"
+               class="flex-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
+        <button class="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">Search</button>
+      </form>
 
-  @if($cars->isNotEmpty())
-    <div class="list-group">
-      @foreach($cars as $car)
-        <div class="list-group-item">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <strong>Ticket {{ $car->id }}</strong>
-              — {{ $car->first_name }} {{ $car->last_name }}
-              @if($car->is_test)
-                <span class="badge bg-secondary ms-2">TEST</span>
-              @endif
-              @if($car->checked_in)
-                <span class="badge bg-success ms-2">Checked In</span>
-              @endif
-              @if($car->tshirt_given)
-                <span class="badge bg-info ms-1">Shirt</span>
-              @endif
+      @if($cars->isNotEmpty())
+        <div class="mt-6 space-y-4">
+          @foreach($cars as $car)
+            <div class="bg-white rounded-xl shadow-sm p-4">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div class="font-semibold">
+                    Ticket {{ $car->id }} — {{ $car->first_name }} {{ $car->last_name }}
+                  </div>
+                  <div class="mt-1 flex flex-wrap gap-2">
+                    @if($car->is_test)
+                      <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">TEST</span>
+                    @endif
+                    @if($car->checked_in)
+                      <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">Checked In</span>
+                    @endif
+                    @if($car->tshirt_given)
+                      <span class="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700">Shirt</span>
+                    @endif
+                  </div>
+                </div>
+
+                <div class="flex gap-2">
+                  @if(!$car->checked_in)
+                    <form method="POST" action="{{ route('admin.checkin',$car) }}">
+                      @csrf
+                      <input type="hidden" name="comments" value="{{ $car->comments }}">
+                      <button class="rounded-lg bg-green-600 text-white px-3 py-2 text-sm font-medium hover:bg-green-700">Check In</button>
+                    </form>
+                  @endif
+                  @if(!$car->tshirt_given)
+                    <form method="POST" action="{{ route('admin.shirt',$car) }}">
+                      @csrf
+                      <button class="rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50">Give Shirt</button>
+                    </form>
+                  @endif
+                </div>
+              </div>
+
+              <form method="POST" action="{{ route('admin.comment',$car) }}" class="mt-3">
+                @csrf
+                <textarea name="comments" rows="2" placeholder="Add comments…"
+                          class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">{{ old('comments',$car->comments) }}</textarea>
+                <div class="mt-2">
+                  <button class="rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50">Save Comments</button>
+                </div>
+              </form>
             </div>
-            <div class="d-flex gap-2">
-              @if(!$car->checked_in)
-                <form method="POST" action="{{ route('admin.checkin',$car) }}">
-                  @csrf
-                  <input type="hidden" name="comments" value="{{ $car->comments }}">
-                  <button class="btn btn-success btn-sm">Check In</button>
-                </form>
-              @endif
-              @if(!$car->tshirt_given)
-                <form method="POST" action="{{ route('admin.shirt',$car) }}">@csrf
-                  <button class="btn btn-outline-primary btn-sm">Give Shirt</button>
-                </form>
-              @endif
-            </div>
-          </div>
-          <form method="POST" action="{{ route('admin.comment',$car) }}" class="mt-2">
-            @csrf
-            <textarea name="comments" class="form-control" rows="2" placeholder="Add comments…">{{ old('comments',$car->comments) }}</textarea>
-            <div class="mt-2">
-              <button class="btn btn-outline-secondary btn-sm">Save Comments</button>
-            </div>
-          </form>
+          @endforeach
         </div>
-      @endforeach
+      @endif
     </div>
-  @endif
-</div>
+  </div>
 </x-app-layout>
