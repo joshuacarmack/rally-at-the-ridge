@@ -46,10 +46,11 @@
                   <div class="flex flex-wrap gap-2">
                     @if($car->checked_in)
                       <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">Checked In</span>
+                      @unless($car->tshirt_given)
+                      <span class="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-red-700"> NoShirt</span>
+                      @endunless
                     @endif
-                    @if($car->tshirt_given)
-                      <span class="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700">Shirt</span>
-                    @endif
+                    
                   </div>
                 </td>
                 <td class="px-3 py-2 text-right">
