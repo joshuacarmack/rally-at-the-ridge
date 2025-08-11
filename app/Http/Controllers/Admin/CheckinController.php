@@ -2,67 +2,75 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Car;
-use Illuminate\Routing\Controller;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Car;
 
 class CheckinController extends Controller
 {
-    // Table search: empty query = list all (paginated)
-    public function index(Request $r)
+    /**
+     * Table search: empty query = list all (paginated)
+     */
+    public function index(Request $request)
     {
-        $q = trim((string)$r->query('q',''));
+        $q = trim((string) $request->query('q', ''));
 
         $cars = Car::query()
-            ->when($q !== '', function ($qq) use ($q) {
+            ->when($q !== '', function ($query) use ($q) {
                 if (is_numeric($q)) {
-                    $qq->where('id', (int)$q);
+                    $query->where('id', (int) $q); // ticket == id
                 } else {
-                    $qq->where(function ($w) use ($q) {
-                        $w->whereFullText(['first_name','last_name'], $q)
-                          ->orWhere('first_name','like',"%{$q}%")
-                          ->orWhere('last_name','like',"%{$q}%");
+                    $query->where(function ($w) use ($q) {
+                        $w->where('first_name', 'like', "%{$q}%")
+                          ->orWhere('last_name', 'like', "%{$q}%")
+                          ->orWhere('email', 'like', "%{$q}%")
+                          ->orWhere('phone', 'like', "%{$q}%")
+                          ->orWhere('make', 'like', "%{$q}%")
+                          ->orWhere('model', 'like', "%{$q}%");
                     });
                 }
             })
-            ->orderBy('last_name')->orderBy('first_name')->orderBy('id')
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->orderBy('id')
             ->paginate(25)
             ->withQueryString();
 
-        return view('admin.checkin_index', compact('q','cars'));
+        return view('admin.checkin_index', compact('cars', 'q'));
     }
 
-    // Detail page
+    /**
+     * Detail page
+     */
     public function show(Car $car)
     {
         return view('admin.checkin_show', compact('car'));
     }
 
-    // Actions
-    public function checkin(Request $r, Car $car)
+    /**
+     * One-form submit: shirt checkbox + comments + (first-time) check-in
+     */
+    public function checkin(Request $request, Car $car)
     {
-        if (!$car->checked_in) {
-            $validated = $r->validate(['comments' => 'nullable|max:2000']);
-            $car->update([
-                'checked_in'    => true,
-                'checked_in_at' => now(),
-                'checked_in_by' => optional($r->user())->id,
-                'comments'      => $validated['comments'] ?? $car->comments,
-            ]);
+        $data = $request->validate([
+            'comments'     => 'nullable|string|max:2000',
+            'tshirt_given' => 'nullable|boolean',
+        ]);
+
+        // Update comments + shirt
+        $car->comments = $data['comments'] ?? $car->comments;
+        $car->tshirt_given = $request->boolean('tshirt_given'); // checked => true
+
+        // Mark checked-in if not already
+        if (! $car->checked_in) {
+            $car->checked_in    = true;
+            $car->checked_in_at = now();
+            $car->checked_in_by = optional($request->user())->id;
         }
-        return back()->with('ok','Checked in');
-    }
 
-    public function shirt(Request $r, Car $car)
-    {
-        $car->update(['tshirt_given' => true]);
-        return back()->with('ok','Shirt marked as given');
-    }
+        $car->save();
 
-    public function comment(Request $r, Car $car)
-    {
-        $validated = $r->validate(['comments' => 'nullable|max:2000']);
-        $car->update(['comments' => $validated['comments'] ?? null]);
-        return back()->with('ok','Comments saved');
+        // NOTE: route name is admin.cars.show per your routes
+        return redirect()->route('admin.cars.show', $car)->with('ok', 'Check-in updated.');
     }
 }
