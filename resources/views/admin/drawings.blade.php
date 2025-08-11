@@ -1,6 +1,11 @@
-@extends('layouts.app')
-@section('content')
-<div class="container py-4">
+  {{-- Optional header slot shown in the top bar --}}
+  <x-slot name="header">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      Drawings
+    </h2>
+  </x-slot>
+
+<div class="py-6">
   <h1>Drawings</h1>
   @if(session('ok')) <div class="alert alert-success">{{ session('ok') }}</div> @endif
   @if(session('err')) <div class="alert alert-danger">{{ session('err') }}</div> @endif
@@ -40,4 +45,4 @@
     @endforeach
   </ol>
 </div>
-@endsection
+</x-app-layout>

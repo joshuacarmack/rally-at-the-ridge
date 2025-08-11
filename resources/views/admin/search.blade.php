@@ -1,5 +1,11 @@
-@extends('layouts.app')
-@section('content')
+<x-app-layout>
+  <x-slot name="header">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <!-- Page title here, e.g. "Check‑In" -->
+      Search
+    </h2>
+  </x-slot>
+
 <div class="container py-4">
   <h1>Check‑In</h1>
   @if(session('ok')) <div class="alert alert-success">{{ session('ok') }}</div> @endif
@@ -57,4 +63,4 @@
     </div>
   @endif
 </div>
-@endsection
+</x-app-layout>

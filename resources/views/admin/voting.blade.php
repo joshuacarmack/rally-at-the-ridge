@@ -1,6 +1,12 @@
-@extends('layouts.app')
-@section('content')
-<div class="container py-4">
+<x-app-layout>
+  <x-slot name="header">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <!-- Page title here, e.g. "Check‑In" -->
+      Voting
+    </h2>
+  </x-slot>
+
+<div class="py-6">
   <h1>Voting Entry</h1>
   @if(session('ok')) <div class="alert alert-success">{{ session('ok') }}</div> @endif
   @if(session('err')) <div class="alert alert-danger">{{ session('err') }}</div> @endif
@@ -14,4 +20,4 @@
 
   <a href="{{ route('admin.voting.leaderboard') }}" class="btn btn-outline-secondary mt-3">View Leaderboard</a>
 </div>
-@endsection
+</x-app-layout>

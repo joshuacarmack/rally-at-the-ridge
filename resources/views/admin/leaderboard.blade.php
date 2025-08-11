@@ -1,6 +1,12 @@
-@extends('layouts.app')
-@section('content')
-<div class="container py-4">
+<x-app-layout>
+  <x-slot name="header">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+      <!-- Page title here, e.g. "Check‑In" -->
+      Leaderboard
+    </h2>
+  </x-slot>
+
+<div class="py-6">
   <h1>Leaderboard (Top 15)</h1>
   <table class="table table-striped">
     <thead><tr><th>#</th><th>Ticket (ID)</th><th>Name</th><th>Votes</th><th>Checked In</th></tr></thead>
@@ -37,4 +43,4 @@
     </ul>
   @endif
 </div>
-@endsection
+</x-app-layout>
