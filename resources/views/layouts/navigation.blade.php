@@ -74,8 +74,18 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+            {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.checkin.index')" :active="request()->routeIs('admin.checkin.index')">
+            {{ __('Check-In') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.voting')" :active="request()->routeIs('admin.voting')">
+            {{ __('Voting') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.drawings')" :active="request()->routeIs('admin.drawings')">
+            {{ __('Drawings') }}
+            </x-responsive-nav-link>
+            
         </div>
 
         <!-- Responsive Settings Options -->
